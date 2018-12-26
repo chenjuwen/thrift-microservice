@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  
+  <parent>
+    <groupId>com.seasy.microservice</groupId>
+    <artifactId>thrift-microservice</artifactId>
+    <version>1.0.0</version>
+  </parent>
+
+  <artifactId>thrift-microservice-server</artifactId>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+  
+  <dependencies>
+	<dependency>
+    	<groupId>com.seasy.microservice</groupId>
+  		<artifactId>thrift-microservice-api</artifactId>
+	    <version>1.0.0</version>
+	</dependency>
+	<dependency>
+    	<groupId>com.seasy.microservice</groupId>
+  		<artifactId>thrift-microservice-core</artifactId>
+	    <version>1.0.0</version>
+	</dependency>
+	
+	<!-- curator -->
+	<dependency>
+	    <groupId>org.apache.curator</groupId>
+	    <artifactId>curator-framework</artifactId>
+	    <version>2.13.0</version>
+	</dependency>
+	<dependency>
+	    <groupId>org.apache.curator</groupId>
+	    <artifactId>curator-recipes</artifactId>
+	    <version>2.13.0</version>
+	</dependency>
+	<dependency>
+	    <groupId>org.apache.curator</groupId>
+	    <artifactId>curator-x-discovery</artifactId>
+	    <version>2.13.0</version>
+	</dependency>
+	<dependency>
+	    <groupId>org.apache.curator</groupId>
+	    <artifactId>curator-test</artifactId>
+	    <version>2.13.0</version>
+	    <scope>test</scope>
+	    <exclusions>
+            <exclusion>
+                <groupId>com.google.guava</groupId>
+    			<artifactId>guava</artifactId>
+            </exclusion>
+        </exclusions>
+	</dependency>
+	
+	<dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>3.3.2</version>
+    </dependency>
+  </dependencies>
+</project>

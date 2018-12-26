@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="false">
+    <property name="LOG_DIR" value="./logs"/>
+    <property name="LOG_LEVEL" value="info"/>
+	<property name="LOG_MAX_HISTORY" value="90"/>
+	<timestamp key="LOG_DATE" datePattern="yyyyMMdd"/>
+
+	<appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">    
+        <encoder>    
+            <pattern>%d %p (%file:%line\) - %m%n</pattern>  
+            <charset>UTF-8</charset>   
+        </encoder>    
+    </appender>
+    
+	<appender name="main" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOG_DIR}/easy-${LOG_DATE}.txt</file>
+		<append>true</append>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOG_DIR}/easy-%d{yyyyMMdd}.%i.txt</fileNamePattern>
+			<maxHistory>${LOG_MAX_HISTORY}</maxHistory>
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>64MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%file : %line] - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+    <root level="${LOG_LEVEL}">
+        <appender-ref ref="stdout"/>
+        <appender-ref ref="main"/>
+    </root>
+    
+    <logger name="com.seasy.microservice" level="DEBUG"/>
+    
+</configuration>

@@ -1,0 +1,37 @@
+<assembly>  
+	<!-- mvn clean package assembly:assembly -->
+    <id>release</id> 
+     
+    <!-- 打包成zip文件 -->  
+    <formats>
+        <format>zip</format>  
+    </formats>
+  	
+  	<!-- 文件复制 -->
+    <fileSets>
+        <fileSet>  
+            <directory>/</directory>    
+            <includes>  
+                <include>run.bat</include>
+            </includes> 
+            <outputDirectory>/</outputDirectory> 
+        </fileSet>
+        
+        <fileSet>  
+            <directory>/src/main/resources</directory>  
+            <includes>
+                <include>*.properties</include>
+                <include>*.xml</include>
+            </includes>   
+            <outputDirectory>/config</outputDirectory> 
+        </fileSet>
+        
+        <fileSet>  
+            <directory>/target</directory>    
+            <includes>  
+                <include>thrift-microservice-admin.jar</include>
+            </includes> 
+            <outputDirectory>/</outputDirectory> 
+        </fileSet>
+    </fileSets>  
+</assembly>
