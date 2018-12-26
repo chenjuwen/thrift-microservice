@@ -154,7 +154,7 @@ public class ThriftClientTest {
 	
 	private static void client4()throws Exception{
 		TSSLTransportParameters params = new TSSLTransportParameters();
-		params.setTrustStore("cert/DBSBank-SG-Sub-CA.jks", "x01svtmaapp1a.uat.dbs.com", "SunX509", "JKS");
+		params.setTrustStore("cert/ca.jks", "x01svtmaapp1a.uat.dbs.com", "SunX509", "JKS");
 		
 		transport = TSSLTransportFactory
 				.getClientSocket(Configuration.HOST, Configuration.SERVER_PORT, Configuration.TIMEOUT, params);
