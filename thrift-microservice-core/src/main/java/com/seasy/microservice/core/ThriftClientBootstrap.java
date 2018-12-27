@@ -134,6 +134,8 @@ public class ThriftClientBootstrap extends AbstractBootstrap implements ClientBo
 	 * @param serviceName 服务名
 	 */
 	private ServiceInstance<ThriftServicePayload> queryForInstance(String serviceName)throws Exception{
+		//此处可能会返回多个对象
+		//可以在此处实现软负载均衡、获取指定版本号的对象
 		Collection<ServiceInstance<ThriftServicePayload>> instanceList = serviceRegistry.queryForInstances(serviceName);
     	if(instanceList != null && instanceList.size() > 0){
     		ServiceInstance<ThriftServicePayload> instance = instanceList.iterator().next();

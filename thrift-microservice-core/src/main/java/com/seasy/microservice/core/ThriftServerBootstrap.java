@@ -12,7 +12,6 @@ import org.apache.thrift.TProcessor;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.server.ServerContext;
-import org.apache.thrift.server.TNonblockingServer;
 import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.TServerEventHandler;
 import org.apache.thrift.server.TThreadedSelectorServer;
@@ -149,10 +148,15 @@ public class ThriftServerBootstrap extends AbstractBootstrap implements ServerBo
     		
     		if(serviceInformation.isProcessorRegistered()){
     			try{
+    				String id = serviceInformation.getId();
+    				if(StringUtil.isEmpty(id)){
+    					id = ip + ":" + getPort();
+    				}
+    				
     				//构造ServiceInstance对象，该对象表示一个业务服务，用于存储业务服务相关的参数数据
 	    			ServiceInstance<ThriftServicePayload> serviceInstance = ServiceInstance.<ThriftServicePayload>builder()
 	    				.name(serviceName)
-	    				.id(StringUtil.isEmpty(serviceInformation.getId()) ? serviceName : serviceInformation.getId())
+	    				.id(id)
 	    				.address(ip)
 	    				.port(getPort())
 	    				.payload(new ThriftServicePayload(serviceInformation.getVersion(), serviceInformation.getServiceClass().getName()))
@@ -182,7 +186,7 @@ public class ThriftServerBootstrap extends AbstractBootstrap implements ServerBo
         tArgs.transportFactory(new TFramedTransport.Factory());
         tArgs.protocolFactory(new TCompactProtocol.Factory());
 		tArgs.selectorThreads(5);
-		tArgs.workerThreads(50);
+		tArgs.workerThreads(100);
 
         tserver = new TThreadedSelectorServer(tArgs);
         tserver.setServerEventHandler(new DefaultServerEventHandler());

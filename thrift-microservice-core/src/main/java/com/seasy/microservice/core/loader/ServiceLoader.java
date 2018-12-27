@@ -52,7 +52,7 @@ public class ServiceLoader extends AbstractLoader<ConcurrentHashMap<String, Serv
 			
 			//服务相关信息封装在ServiceInformation类中
 			ServiceInformation serviceInformation = new ServiceInformation();
-			serviceInformation.setId(serviceInformation.getId());
+			serviceInformation.setId(serviceAnnotation.id());
 			serviceInformation.setServiceClass(serviceAnnotation.serviceClass());
 			serviceInformation.setVersion(serviceAnnotation.version());
 			serviceInformation.setTimeout(serviceAnnotation.timeout());
