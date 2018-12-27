@@ -5,24 +5,21 @@ import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.curator.x.discovery.ServiceInstance;
-import org.apache.zookeeper.CreateMode;
 import org.slf4j.Logger;
 
-import com.seasy.microservice.core.common.DataKeys;
+import com.seasy.microservice.core.common.LoggerFactory;
 import com.seasy.microservice.core.common.ServiceClientFactory;
 import com.seasy.microservice.core.common.ServiceClientWrapper;
 import com.seasy.microservice.core.common.ThriftServicePayload;
-import com.seasy.microservice.core.utils.DatetimeUtil;
 import com.seasy.microservice.core.utils.EnvUtil;
-
-import net.sf.json.JSONObject;
 
 public class ThriftClientBootstrap extends AbstractBootstrap implements ClientBootstrap{
 	private static final Logger logger = LoggerFactory.getLogger(ThriftClientBootstrap.class);
 	private ConcurrentHashMap<String, ServiceClientFactory> serviceClientFactoryMap = new ConcurrentHashMap<>();
-
+	private ConsumerHelper consumerHelper;
+	
 	public ThriftClientBootstrap(String registryAddress){
-		this.registryAddress = registryAddress;
+		super(registryAddress);
 	}
 	
 	@Override
@@ -30,23 +27,19 @@ public class ThriftClientBootstrap extends AbstractBootstrap implements ClientBo
 		logger.debug("start ThriftClientBootstrap...");
 		super.start();
 		
-		initZnode();
+		initConsumerHelper();
 	}
 	
 	/**
 	 * 初始化根znode
 	 */
-	private void initZnode()throws Exception{
-		serviceRegistry.createZnode(ServiceRegistry.ZNODE_PATH_CONSUMER, CreateMode.PERSISTENT);
+	private void initConsumerHelper()throws Exception{
+		consumerHelper = new ConsumerHelper(serviceRegistry.getCuratorHelper());
+		consumerHelper.initRootZnode();
 		
-		//创建消费者znode
-		JSONObject jsonObject = new JSONObject();
-		jsonObject.put(DataKeys.Consumer.IP.name(), EnvUtil.getLocalIp());
-		jsonObject.put(DataKeys.Consumer.TIME.name(), DatetimeUtil.getToday(DatetimeUtil.DEFAULT_PATTERN_DT));
-		
-		String data = jsonObject.toString();
-		String znodePath = ServiceRegistry.ZNODE_PATH_CONSUMER + "/" + EnvUtil.getLocalIp();
-		serviceRegistry.createZnode(znodePath, CreateMode.EPHEMERAL, data.getBytes());
+		if(isRegister()){
+			consumerHelper.register(EnvUtil.getLocalIp());
+		}
 	}
 	
 	@Override

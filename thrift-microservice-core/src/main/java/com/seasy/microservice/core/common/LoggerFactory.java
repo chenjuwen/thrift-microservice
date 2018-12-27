@@ -1,4 +1,4 @@
-package com.seasy.microservice.core;
+package com.seasy.microservice.core.common;
 
 import java.io.File;
 

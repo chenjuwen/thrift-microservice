@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 
-import com.seasy.microservice.core.LoggerFactory;
+import com.seasy.microservice.core.common.LoggerFactory;
 import com.seasy.microservice.core.common.ServiceAnnotation;
 import com.seasy.microservice.core.common.ServiceInformation;
 import com.seasy.microservice.core.utils.StringUtil;

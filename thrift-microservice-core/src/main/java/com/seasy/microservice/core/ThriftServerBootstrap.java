@@ -18,36 +18,36 @@ import org.apache.thrift.server.TServerEventHandler;
 import org.apache.thrift.transport.TFramedTransport;
 import org.apache.thrift.transport.TNonblockingServerSocket;
 import org.apache.thrift.transport.TTransport;
-import org.apache.zookeeper.CreateMode;
 import org.slf4j.Logger;
 
-import com.seasy.microservice.core.common.DataKeys;
+import com.seasy.microservice.core.common.LoggerFactory;
 import com.seasy.microservice.core.common.ServiceInformation;
 import com.seasy.microservice.core.common.ThriftServicePayload;
 import com.seasy.microservice.core.loader.ServiceLoader;
-import com.seasy.microservice.core.utils.DatetimeUtil;
 import com.seasy.microservice.core.utils.EnvUtil;
 import com.seasy.microservice.core.utils.StringUtil;
-
-import net.sf.json.JSONObject;
 
 public class ThriftServerBootstrap extends AbstractBootstrap implements ServerBotstrap {
 	private static final Logger logger = LoggerFactory.getLogger(ThriftServerBootstrap.class);
 	
+	private ProviderHelper providerHelper;
 	private String ip; //服务器ip
 	private int port; //服务监听端口
-	private String serviceBasePackage; //服务实现类所在的根包路径
 	
+	private String serviceBasePackage; //服务实现类所在的根包路径
 	private ConcurrentHashMap<String, ServiceInformation> serviceInformationMap;
+	
 	private TMultiplexedProcessor multiplexedProcessor;
 	private TNonblockingServerSocket serverSocket = null;
 	private TServer tserver = null;
+	
 	private AtomicInteger connectCount = new AtomicInteger(); //客户端连接数
 	
 	public ThriftServerBootstrap(int port, String serviceBasePackage, String registryAddress){
+		super(registryAddress);
+		this.ip = EnvUtil.getLocalIp();
 		this.port = port;
 		this.serviceBasePackage = serviceBasePackage;
-		this.registryAddress = registryAddress;
 	}
 
 	/**
@@ -56,12 +56,9 @@ public class ThriftServerBootstrap extends AbstractBootstrap implements ServerBo
 	@Override
 	public void start() throws Exception {
 		logger.debug("start ThriftServerBootstrap...");
-		
-		this.ip = EnvUtil.getLocalIp();
-		
 		super.start();
 		
-		initZnode();
+		initProviderHelper();
 		
 		loadBusinessService();
 		
@@ -75,9 +72,9 @@ public class ThriftServerBootstrap extends AbstractBootstrap implements ServerBo
 	/**
 	 * 初始化根znode
 	 */
-	private void initZnode()throws Exception{
-		serviceRegistry.createZnode(ServiceRegistry.ZNODE_PATH_SERVICE, CreateMode.PERSISTENT);
-		serviceRegistry.createZnode(ServiceRegistry.ZNODE_PATH_PROVIDER, CreateMode.PERSISTENT);
+	private void initProviderHelper()throws Exception{
+		providerHelper = new ProviderHelper(serviceRegistry.getCuratorHelper());
+		providerHelper.initRootZnode();
 	}
 	
 	/**
@@ -212,15 +209,9 @@ public class ThriftServerBootstrap extends AbstractBootstrap implements ServerBo
 	class DefaultServerEventHandler implements TServerEventHandler{
 		@Override
 		public void preServe() {
-			//创建提供者znode
-			JSONObject jsonObject = new JSONObject();
-			jsonObject.put(DataKeys.Provider.IP.name(), ip);
-			jsonObject.put(DataKeys.Provider.PORT.name(), String.valueOf(port));
-			jsonObject.put(DataKeys.Provider.TIME.name(), DatetimeUtil.getToday(DatetimeUtil.DEFAULT_PATTERN_DT));
-			
-			String data = jsonObject.toString();
-			String znodePath = ServiceRegistry.ZNODE_PATH_PROVIDER + "/" + ip + ":" + port;
-			serviceRegistry.createZnode(znodePath, CreateMode.EPHEMERAL, data.getBytes());
+			if(isRegister()){
+				providerHelper.register(ip, String.valueOf(port));
+			}
 			
 	        logger.info("start server at port " + getPort());
 		}

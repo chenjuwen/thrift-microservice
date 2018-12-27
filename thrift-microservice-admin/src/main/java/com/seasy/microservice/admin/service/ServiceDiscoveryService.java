@@ -14,7 +14,8 @@ import com.seasy.microservice.admin.bean.ConsumerBean;
 import com.seasy.microservice.admin.bean.ProviderBean;
 import com.seasy.microservice.admin.bean.ServiceBean;
 import com.seasy.microservice.core.ClientBootstrap;
-import com.seasy.microservice.core.ServiceRegistry;
+import com.seasy.microservice.core.ConsumerHelper;
+import com.seasy.microservice.core.ProviderHelper;
 import com.seasy.microservice.core.common.DataKeys;
 import com.seasy.microservice.core.common.ThriftServicePayload;
 import com.seasy.microservice.core.utils.DatetimeUtil;
@@ -34,10 +35,10 @@ public class ServiceDiscoveryService {
 		Map<String, ProviderBean> beanMap = new HashMap<>();
 		
 		try{
-			List<String> pathList = clientBootstrap.getServiceRegistry().getChildren(ServiceRegistry.ZNODE_PATH_PROVIDER);
+			List<String> pathList = clientBootstrap.getServiceRegistry().getCuratorHelper().getChildren(ProviderHelper.ZNODE_PATH_PROVIDER);
 			for(String path : pathList){
-				String subpath = ServiceRegistry.ZNODE_PATH_PROVIDER + "/" + path;
-				byte[] data = clientBootstrap.getServiceRegistry().getData(subpath);
+				String subpath = ProviderHelper.ZNODE_PATH_PROVIDER + "/" + path;
+				byte[] data = clientBootstrap.getServiceRegistry().getCuratorHelper().getData(subpath);
 				JSONObject jsonObject = JsonUtil.string2object(new String(data));
 				
 				ProviderBean bean = new ProviderBean();
@@ -62,10 +63,10 @@ public class ServiceDiscoveryService {
 		Map<String, ConsumerBean> beanMap = new HashMap<>();
 		
 		try{
-			List<String> pathList = clientBootstrap.getServiceRegistry().getChildren(ServiceRegistry.ZNODE_PATH_CONSUMER);
+			List<String> pathList = clientBootstrap.getServiceRegistry().getCuratorHelper().getChildren(ConsumerHelper.ZNODE_PATH_CONSUMER);
 			for(String path : pathList){
-				String subpath = ServiceRegistry.ZNODE_PATH_CONSUMER + "/" + path;
-				byte[] data = clientBootstrap.getServiceRegistry().getData(subpath);
+				String subpath = ConsumerHelper.ZNODE_PATH_CONSUMER + "/" + path;
+				byte[] data = clientBootstrap.getServiceRegistry().getCuratorHelper().getData(subpath);
 				JSONObject jsonObject = JsonUtil.string2object(new String(data));
 				
 				ConsumerBean bean = new ConsumerBean();

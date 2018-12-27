@@ -10,7 +10,6 @@ import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 import org.slf4j.Logger;
 
-import com.seasy.microservice.core.LoggerFactory;
 import com.seasy.microservice.core.utils.StringUtil;
 
 /**
