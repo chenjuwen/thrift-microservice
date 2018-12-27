@@ -54,6 +54,7 @@ public class ServiceClientFactory {
     	if(transport != null){
     		transport.close();
     	}
+    	serviceClientWrapperMap.clear();
     }
     
     public void destroy(){
@@ -61,7 +62,6 @@ public class ServiceClientFactory {
     	this.transport = null;
     	this.host = null;
     	this.port = 0;
-    	serviceClientWrapperMap.clear();
     }
 	
 	public ServiceClientWrapper getServiceClientWrapper(String serviceName){

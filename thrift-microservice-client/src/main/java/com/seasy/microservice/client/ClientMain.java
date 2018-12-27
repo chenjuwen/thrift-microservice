@@ -1,6 +1,7 @@
 package com.seasy.microservice.client;
 
 import java.nio.ByteBuffer;
+import java.util.concurrent.TimeUnit;
 
 import com.seasy.microservice.api.CardReaderDevice;
 import com.seasy.microservice.api.Hello;
@@ -44,6 +45,9 @@ public class ClientMain {
 		        Response response = client2.sendMessage(new Message(2, data2));
 		        System.out.println(response.getCode() + ", " + response.getMessage());
 	        }
+	        
+	        TimeUnit.SECONDS.sleep(60);
+	        System.out.println("OK");
 	        
 		}catch(Exception ex){
 			ex.printStackTrace();
