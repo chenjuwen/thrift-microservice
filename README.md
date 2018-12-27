@@ -1,6 +1,11 @@
 # thrift-microservice  
 基于Thrift实现的服务自动注册与发现组件  
 
+# 技术栈  
+zookeeper-3.4.13  
+thrift-0.11.0  
+curator-2.13.0  
+
 # 运行步骤  
 1、搭建并启动Zookeeper服务器  
 2、运行thrift-microservice-server  
