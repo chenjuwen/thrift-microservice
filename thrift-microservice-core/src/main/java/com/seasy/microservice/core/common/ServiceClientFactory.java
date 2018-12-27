@@ -13,7 +13,9 @@ import org.slf4j.Logger;
 import com.seasy.microservice.core.utils.StringUtil;
 
 /**
- * ServiceClient包装类
+ * ServiceClient工厂类：
+ *  	一个ServiceClientFactory代表一个服务提供者，可能提供多个服务
+ *  	服务Client对象存放在serviceClientWrapperMap集合中
  */
 public class ServiceClientFactory {
 	private static final Logger logger = LoggerFactory.getLogger(ServiceClientFactory.class);
@@ -21,6 +23,8 @@ public class ServiceClientFactory {
     private TTransport transport = null;
 	private String host = null;
 	private int port = 0;
+	
+	//key=serviceName, value=ServiceClientWrapper
 	private ConcurrentHashMap<String, ServiceClientWrapper> serviceClientWrapperMap = new ConcurrentHashMap<>();
     
 	private ServiceClientFactory(){

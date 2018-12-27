@@ -154,7 +154,7 @@ public class ThriftServerBootstrap extends AbstractBootstrap implements ServerBo
     				}
     				
     				//构造ServiceInstance对象，该对象表示一个业务服务，用于存储业务服务相关的参数数据
-	    			ServiceInstance<ThriftServicePayload> serviceInstance = ServiceInstance.<ThriftServicePayload>builder()
+	    			ServiceInstance<ThriftServicePayload> serviceInstancePayload = ServiceInstance.<ThriftServicePayload>builder()
 	    				.name(serviceName)
 	    				.id(id)
 	    				.address(ip)
@@ -164,8 +164,9 @@ public class ThriftServerBootstrap extends AbstractBootstrap implements ServerBo
 	    				.serviceType(ServiceType.DYNAMIC)
 	    				.build();
 	    	    	
-	    	    	serviceRegistry.registerService(serviceInstance);
+	    	    	serviceRegistry.registerService(serviceInstancePayload);
 	    	    	serviceInformation.setServiceRegistered(true);
+	    	    	serviceInformation.setServiceInstancePayload(serviceInstancePayload);
 	    	    	logger.info("Service [" + serviceName + "] registered!");
 	    	    	
     			}catch(Exception ex){
@@ -198,6 +199,22 @@ public class ThriftServerBootstrap extends AbstractBootstrap implements ServerBo
 	 */
 	@Override
 	public void stop(){
+		//反注册提供者
+		if(providerHelper != null && isRegister()){
+			providerHelper.unregister(ip, String.valueOf(port));
+		}
+		
+		//反注册服务
+		for(ServiceInformation serviceInfo : serviceInformationMap.values()){
+			if(serviceInfo.getServiceInstancePayload() != null){
+				try {
+					serviceRegistry.unregisterService(serviceInfo.getServiceInstancePayload());
+				} catch (Exception ex) {
+					logger.error("unregister service error: " + ex.toString());
+				}
+			}
+		}
+		
 		super.stop();
 		
 		if(serverSocket != null){
@@ -216,6 +233,7 @@ public class ThriftServerBootstrap extends AbstractBootstrap implements ServerBo
 	class DefaultServerEventHandler implements TServerEventHandler{
 		@Override
 		public void preServe() {
+			//注册提供者
 			if(isRegister()){
 				providerHelper.register(ip, String.valueOf(port));
 			}

@@ -11,21 +11,30 @@ import com.seasy.microservice.core.common.LoggerFactory;
 import com.seasy.microservice.core.common.ServiceClientFactory;
 import com.seasy.microservice.core.common.ServiceClientWrapper;
 import com.seasy.microservice.core.common.ThriftServicePayload;
+import com.seasy.microservice.core.loadbalance.LoadBalance;
+import com.seasy.microservice.core.loadbalance.RandomLoadBalance;
 import com.seasy.microservice.core.utils.EnvUtil;
 
 public class ThriftClientBootstrap extends AbstractBootstrap implements ClientBootstrap{
 	private static final Logger logger = LoggerFactory.getLogger(ThriftClientBootstrap.class);
+	
+	//key=host:port, value=ServiceClientFactory
 	private ConcurrentHashMap<String, ServiceClientFactory> serviceClientFactoryMap = new ConcurrentHashMap<>();
 	private ConsumerHelper consumerHelper;
+	private String localIp;
+	private LoadBalance loadBalance;
 	
 	public ThriftClientBootstrap(String registryAddress){
 		super(registryAddress);
+		this.localIp = EnvUtil.getLocalIp();
 	}
 	
 	@Override
 	public void start() throws Exception {
 		logger.debug("start ThriftClientBootstrap...");
 		super.start();
+		
+		loadBalance = new RandomLoadBalance(); //负载均衡：随机
 		
 		initConsumerHelper();
 	}
@@ -37,14 +46,21 @@ public class ThriftClientBootstrap extends AbstractBootstrap implements ClientBo
 		consumerHelper = new ConsumerHelper(serviceRegistry.getCuratorHelper());
 		consumerHelper.initRootZnode();
 		
+		//注册消费者
 		if(isRegister()){
-			consumerHelper.register(EnvUtil.getLocalIp());
+			consumerHelper.register(this.localIp);
 		}
 	}
 	
 	@Override
 	public void stop(){
 		logger.debug("stop ThriftClientBootstrap...");
+		
+		//反注册消费者
+		if(consumerHelper != null && isRegister()){
+			consumerHelper.unregister(this.localIp);
+		}
+		
 		super.stop();
 		
 		//关闭所有ServiceClientFactory
@@ -94,6 +110,7 @@ public class ThriftClientBootstrap extends AbstractBootstrap implements ClientBo
 				ServiceClientFactory factory = null;
 				ServiceClientWrapper wrapper = null;
 				
+				//根据服务器地址和端口获取一个ServiceClientFactory对象
 				String key = host + ":" + port;
 				if(serviceClientFactoryMap.containsKey(key)){
 					factory = serviceClientFactoryMap.get(key);
@@ -134,14 +151,14 @@ public class ThriftClientBootstrap extends AbstractBootstrap implements ClientBo
 	 * @param serviceName 服务名
 	 */
 	private ServiceInstance<ThriftServicePayload> queryForInstance(String serviceName)throws Exception{
-		//此处可能会返回多个对象
-		//可以在此处实现软负载均衡、获取指定版本号的对象
 		Collection<ServiceInstance<ThriftServicePayload>> instanceList = serviceRegistry.queryForInstances(serviceName);
-    	if(instanceList != null && instanceList.size() > 0){
-    		ServiceInstance<ThriftServicePayload> instance = instanceList.iterator().next();
-    		return instance;
-    	}
-		return null;
+		
+		//负载均衡
+		ServiceInstance<ThriftServicePayload> instance = loadBalance.select(instanceList, serviceName);
+		if(instance != null){
+			logger.debug("服务地址： " + instance.getAddress() + ":" + instance.getPort());
+		}
+		return instance;
 	}
 	
 	@Override

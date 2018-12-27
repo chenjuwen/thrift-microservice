@@ -27,9 +27,8 @@ public class ConsumerHelper {
 	}
 	
 	/**
-	 * 注册到注册中心
-	 * @param address 提供者地址
-	 * @param port 提供者端口
+	 * 注册
+	 * @param address 消费者地址
 	 */
 	public void register(String address){
 		JSONObject jsonObject = new JSONObject();
@@ -40,6 +39,16 @@ public class ConsumerHelper {
 		String znodePath = ConsumerHelper.ZNODE_PATH_CONSUMER + "/" + address;
 		curatorHelper.createZnode(znodePath, CreateMode.EPHEMERAL, data.getBytes());
 		logger.info("register consumer: " + znodePath);
+	}
+	
+	/**
+	 * 反注册
+	 * @param address 消费者地址
+	 */
+	public void unregister(String address){
+		String znodePath = ConsumerHelper.ZNODE_PATH_CONSUMER + "/" + address;
+		curatorHelper.delete(znodePath);
+		logger.info("unregister consumer: " + znodePath);
 	}
 	
 }

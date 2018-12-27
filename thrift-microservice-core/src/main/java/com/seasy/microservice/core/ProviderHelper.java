@@ -27,7 +27,7 @@ public class ProviderHelper {
 	}
 	
 	/**
-	 * 注册到注册中心
+	 * 注册
 	 * @param address 提供者地址
 	 * @param port 提供者端口
 	 */
@@ -41,6 +41,17 @@ public class ProviderHelper {
 		String znodePath = ProviderHelper.ZNODE_PATH_PROVIDER + "/" + address + ":" + port;
 		curatorHelper.createZnode(znodePath, CreateMode.EPHEMERAL, data.getBytes());
 		logger.info("register provider: " + znodePath);
+	}
+	
+	/**
+	 * 反注册
+	 * @param address 提供者地址
+	 * @param port 提供者端口
+	 */
+	public void unregister(String address, String port){
+		String znodePath = ProviderHelper.ZNODE_PATH_PROVIDER + "/" + address + ":" + port;
+		curatorHelper.delete(znodePath);
+		logger.info("unregister provider: " + znodePath);
 	}
 	
 }

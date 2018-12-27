@@ -9,6 +9,7 @@ import com.seasy.microservice.core.common.ThriftServicePayload;
 
 public interface ServiceRegistry {
 	public static final String ZNODE_PATH_SERVICE = "/service";
+	
 	void start() throws Exception;
 	void close();
 	

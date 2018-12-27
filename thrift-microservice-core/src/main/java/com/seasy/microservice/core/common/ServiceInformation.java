@@ -1,9 +1,12 @@
 package com.seasy.microservice.core.common;
 
+import org.apache.curator.x.discovery.ServiceInstance;
+
 /**
  * 服务注解信息
  */
 public class ServiceInformation {
+	private ServiceInstance<ThriftServicePayload> serviceInstancePayload;
 	private Object serviceImplementClassInstance;
 	
 	private String id;
@@ -14,6 +17,14 @@ public class ServiceInformation {
 	private boolean processorRegistered = false; //是否发布到thrift处理器
 	private boolean serviceRegistered = false; //是否注册到注册中心
 	
+	public ServiceInstance<ThriftServicePayload> getServiceInstancePayload() {
+		return serviceInstancePayload;
+	}
+
+	public void setServiceInstancePayload(ServiceInstance<ThriftServicePayload> serviceInstancePayload) {
+		this.serviceInstancePayload = serviceInstancePayload;
+	}
+
 	public Object getServiceImplementClassInstance() {
 		return serviceImplementClassInstance;
 	}

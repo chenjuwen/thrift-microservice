@@ -84,17 +84,26 @@ public class CuratorHelper {
     	CloseableUtils.closeQuietly(curator);
 	}
 	
+	public boolean exists(String path){
+		try {
+			return curator.checkExists().forPath(path) != null;
+		} catch (Exception ex) {
+			logger.error("check exists error: " + ex.toString());
+		}
+		return false;
+	}
+	
 	public void createZnode(String path, CreateMode mode){
 		createZnode(path, mode, new byte[0]);
 	}
 	
 	public void createZnode(String path, CreateMode mode, byte[] data){
 		try{
-			if(curator.checkExists().forPath(path) == null){
+			if(!exists(path)){
 				curator.create().creatingParentsIfNeeded().withMode(mode).forPath(path, data);
 			}
 		}catch(Exception ex){
-			logger.error("create znode error", ex);
+			logger.error("create znode error: " + ex.toString());
 		}
 	}
 	
@@ -102,7 +111,7 @@ public class CuratorHelper {
 		try{
 			return curator.getChildren().forPath(path);
 		}catch(Exception ex){
-			logger.error("get children error", ex);
+			logger.error("get children error: " + ex.toString());
 			return null;
 		}
 	}
@@ -111,8 +120,18 @@ public class CuratorHelper {
 		try{
 			return curator.getData().forPath(path);
 		}catch(Exception ex){
-			logger.error("get data error", ex);
+			logger.error("get data error: " + ex.toString());
 			return null;
+		}
+	}
+	
+	public void delete(String path){
+		try{
+			if(exists(path)){
+				curator.delete().guaranteed().deletingChildrenIfNeeded().forPath(path);
+			}
+		}catch(Exception ex){
+			logger.error("delete path error: " + ex.toString());
 		}
 	}
 
