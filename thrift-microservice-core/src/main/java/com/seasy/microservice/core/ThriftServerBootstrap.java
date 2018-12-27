@@ -15,6 +15,7 @@ import org.apache.thrift.server.ServerContext;
 import org.apache.thrift.server.TNonblockingServer;
 import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.TServerEventHandler;
+import org.apache.thrift.server.TThreadedSelectorServer;
 import org.apache.thrift.transport.TFramedTransport;
 import org.apache.thrift.transport.TNonblockingServerSocket;
 import org.apache.thrift.transport.TTransport;
@@ -176,12 +177,14 @@ public class ThriftServerBootstrap extends AbstractBootstrap implements ServerBo
     private void startServer()throws Exception{
 		serverSocket = new TNonblockingServerSocket(getPort());
 		
-		TNonblockingServer.Args tArgs = new TNonblockingServer.Args(serverSocket);
+		TThreadedSelectorServer.Args tArgs = new TThreadedSelectorServer.Args(serverSocket);
         tArgs.processor(multiplexedProcessor);
         tArgs.transportFactory(new TFramedTransport.Factory());
         tArgs.protocolFactory(new TCompactProtocol.Factory());
+		tArgs.selectorThreads(5);
+		tArgs.workerThreads(50);
 
-        tserver = new TNonblockingServer(tArgs);
+        tserver = new TThreadedSelectorServer(tArgs);
         tserver.setServerEventHandler(new DefaultServerEventHandler());
         tserver.serve();
     }

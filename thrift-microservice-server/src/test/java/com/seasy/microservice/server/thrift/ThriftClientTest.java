@@ -22,6 +22,7 @@ import org.apache.thrift.transport.TTransport;
 import com.seasy.microservice.api.CardReaderDevice;
 import com.seasy.microservice.api.Hello;
 import com.seasy.microservice.api.Message;
+import com.seasy.microservice.api.Response;
 
 public class ThriftClientTest {
 	private static TTransport transport = null;
@@ -191,9 +192,25 @@ public class ThriftClientTest {
         device.sendMessage(new Message(2, data));
 	}
 	
+	private static void client6()throws Exception{
+		transport = new TFramedTransport(new TSocket(Configuration.HOST, Configuration.SERVER_PORT, Configuration.TIMEOUT));
+        transport.open();
+        
+        TProtocol protocol = new TCompactProtocol(transport);
+		TMultiplexedProtocol multiplexedProtocol = new TMultiplexedProtocol(protocol, "Hello");
+        
+        client = new Hello.Client(multiplexedProtocol);
+        
+        System.out.println(client.helloString("hello string"));
+        
+        ByteBuffer data = ByteBuffer.wrap("hello world".getBytes("UTF-8"));
+        Response response = client.sendMessage(new Message(1, data));
+        System.out.println(response.getCode() + ", " + response.getMessage());
+	}
+	
 	public static void main(String[] args) {
 		try{
-			client5();
+			client6();
 	        System.out.println("end");
 		}catch(Exception ex){
 			ex.printStackTrace();

@@ -1,6 +1,7 @@
 package com.seasy.microservice.server.thrift;
 
 import java.lang.reflect.Constructor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.thrift.TMultiplexedProcessor;
@@ -10,6 +11,7 @@ import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.server.TNonblockingServer;
 import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.TThreadPoolServer;
+import org.apache.thrift.server.TThreadedSelectorServer;
 import org.apache.thrift.transport.TFramedTransport;
 import org.apache.thrift.transport.TNonblockingServerSocket;
 import org.apache.thrift.transport.TNonblockingServerTransport;
@@ -46,6 +48,7 @@ public class ThriftServerTest {
         tArgs.minWorkerThreads(100);
         tArgs.maxWorkerThreads(1000);
         tArgs.protocolFactory(new TBinaryProtocol.Factory());
+        tArgs.executorService(Executors.newFixedThreadPool(100));
         tArgs.processor(processor);
         
         server = new TThreadPoolServer(tArgs);
@@ -67,12 +70,6 @@ public class ThriftServerTest {
 		//使用非阻塞式IO，服务端和客户端需要指定TFramedTransport数据传输方式
 		args.transportFactory(new TFramedTransport.Factory());
 		args.protocolFactory(new TCompactProtocol.Factory()); //压缩二进制协议
-		
-		//多个线程，主要负责客户端的IO处理
-        //args.selectorThreads(2);
-		// 工作线程池
-        //ExecutorService pool = Executors.newFixedThreadPool(3);
-        //args.executorService(pool);
 
 		server = new TNonblockingServer(args);
 	}
@@ -132,11 +129,28 @@ public class ThriftServerTest {
         server = new TThreadPoolServer(tArgs);
 	}
 	
+	private static void start6()throws Exception{
+		TMultiplexedProcessor multiplexedProcessor = new TMultiplexedProcessor();
+		multiplexedProcessor.registerProcessor("Hello", new Hello.Processor<Hello.Iface>(new HelloServiceImpl()));
+		
+		TNonblockingServerTransport transport = 
+				new TNonblockingServerSocket(Configuration.SERVER_PORT, Configuration.TIMEOUT);
+		
+		TThreadedSelectorServer.Args tArgs = new TThreadedSelectorServer.Args(transport);
+		tArgs.processor(multiplexedProcessor);
+		tArgs.transportFactory(new TFramedTransport.Factory());
+		tArgs.protocolFactory(new TCompactProtocol.Factory());
+		tArgs.selectorThreads(5);
+		tArgs.workerThreads(50);
+        
+		TServer server = new TThreadedSelectorServer(tArgs);
+        server.serve();
+	}
+	
 	public static void main(String[] args) {
 		try{
 //			start4();
-			
-			start5();
+			start6();
 			
 			if(server != null){
 				System.out.println("Start server on port " + Configuration.SERVER_PORT + " ...");
