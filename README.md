@@ -10,3 +10,8 @@
 4、运行thrift-microservice-admin  
 修改application.properties文件的注册中心地址，运行Main类，启动服务监控程序  
 浏览器访问 http://localhost:7070/thrift-microservice-admin/index
+
+# 管理中心截图  
+<img src="https://github.com/chenjuwen/thrift-microservice/blob/master/doc/111.jpg" />
+<img src="https://github.com/chenjuwen/thrift-microservice/blob/master/doc/222.jpg" />
+<img src="https://github.com/chenjuwen/thrift-microservice/blob/master/doc/333.jpg" />
