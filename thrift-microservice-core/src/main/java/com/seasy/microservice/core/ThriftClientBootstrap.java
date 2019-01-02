@@ -34,7 +34,9 @@ public class ThriftClientBootstrap extends AbstractBootstrap implements ClientBo
 		logger.debug("start ThriftClientBootstrap...");
 		super.start();
 		
-		loadBalance = new RandomLoadBalance(); //负载均衡：随机
+		if(loadBalance == null){
+			loadBalance = new RandomLoadBalance(); //负载均衡：随机
+		}
 		
 		initConsumerHelper();
 	}
@@ -164,6 +166,11 @@ public class ThriftClientBootstrap extends AbstractBootstrap implements ClientBo
 	@Override
 	public ServiceRegistry getServiceRegistry() {
 		return this.serviceRegistry;
+	}
+	
+	@Override
+	public void setLoadBalance(LoadBalance loadBalance) {
+		this.loadBalance = loadBalance;
 	}
 	
 }

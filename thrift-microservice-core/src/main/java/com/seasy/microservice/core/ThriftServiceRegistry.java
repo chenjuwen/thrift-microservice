@@ -39,6 +39,7 @@ public class ThriftServiceRegistry implements ServiceRegistry{
         serviceDiscovery = ServiceDiscoveryBuilder.builder(ThriftServicePayload.class)
             .client(curatorHelper.getCurator())
             .serializer(new JsonInstanceSerializer<>(ThriftServicePayload.class))
+            .watchInstances(true)
             .basePath(basePath)
             .build();
         

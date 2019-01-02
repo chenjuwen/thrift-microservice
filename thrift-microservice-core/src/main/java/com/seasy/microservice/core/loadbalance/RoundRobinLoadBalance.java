@@ -1,10 +1,12 @@
 package com.seasy.microservice.core.loadbalance;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.curator.shaded.com.google.common.collect.Lists;
 import org.apache.curator.x.discovery.ServiceInstance;
 
 import com.seasy.microservice.core.common.ThriftServicePayload;
@@ -20,16 +22,15 @@ public class RoundRobinLoadBalance extends AbstractLoadBalance {
     protected ServiceInstance<ThriftServicePayload> doSelect(Collection<ServiceInstance<ThriftServicePayload>> instances, String serviceName) {
     	AtomicInteger sequence = sequences.get(serviceName);
         if (sequence == null) {
-            sequences.putIfAbsent(serviceName, new AtomicInteger());
+            sequences.putIfAbsent(serviceName, new AtomicInteger(0));
             sequence = sequences.get(serviceName);
         }
         
         int currentSequence = sequence.getAndIncrement();
         
-        int length = instances.size();
-		Object[] arr = new Object[length];
-		instances.toArray(arr);
-		return (ServiceInstance<ThriftServicePayload>)arr[currentSequence % length];
+        ArrayList<ServiceInstance<ThriftServicePayload>> list = Lists.newArrayList(instances);
+    	int length = instances.size();
+    	return list.get(currentSequence % length);
     }
     
 }
