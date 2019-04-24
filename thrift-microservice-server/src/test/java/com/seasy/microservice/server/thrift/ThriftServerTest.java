@@ -76,7 +76,7 @@ public class ThriftServerTest {
 	
 	private static void start4()throws Exception{
 		TSSLTransportParameters params = new TSSLTransportParameters();
-		params.setKeyStore("cert/server.jks", "x01svtmaapp1a.uat.dbs.com", "SunX509", "JKS");
+		params.setKeyStore("cert/server.jks", "dddddd", "SunX509", "JKS");
 		
 		TServerTransport serverTransport = 
 				TSSLTransportFactory.getServerSocket(Configuration.SERVER_PORT, Configuration.TIMEOUT, null, params);
